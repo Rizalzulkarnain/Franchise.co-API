@@ -1,0 +1,103 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Patient {
+  id               Int                @id @default(autoincrement())
+  name             String             @unique
+  date_of_birth    String
+  gender           String
+  email            String             @unique
+  phone            String
+  address          String
+  occupation       String
+  family_member    String
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  Clinnical_Report Clinnical_Report[]
+  Customer         Customer[]
+}
+
+model Dentist {
+  id               Int                @id @default(autoincrement())
+  name             String
+  address          String
+  phone            String
+  email            String
+  gender           String
+  date_of_birth    String
+  type             String
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  Clinnical_Report Clinnical_Report[]
+  Appointment      Appointment[]
+}
+
+model Dental_Service {
+  id           Int           @id @default(autoincrement())
+  service_name String
+  service_type String
+  price        Int
+  dentist_type String
+  duration     Int
+  Appointment  Appointment[]
+  Invoice      Invoice[]
+}
+
+model Clinnical_Report {
+  id              Int     @id @default(autoincrement())
+  medical_history String
+  treatment_plan  String
+  clinical_notes  String
+  dental_image    String?
+  dental_report   String
+  patient         Patient @relation(fields: [patient_id], references: [id])
+  patient_id      Int
+  dentist         Dentist @relation(fields: [dentist_id], references: [id])
+  dentist_id      Int
+}
+
+model Customer {
+  id                  Int           @id @default(autoincrement())
+  patient             Patient       @relation(fields: [patient_id], references: [id])
+  patient_id          Int
+  numberOfAppointment Int
+  total_spending      Int
+  Appointment         Appointment[]
+}
+
+model Appointment {
+  id             Int            @id @default(autoincrement())
+  customer       Customer       @relation(fields: [customer_id], references: [id])
+  customer_id    Int
+  dentist        Dentist        @relation(fields: [dentist_id], references: [id])
+  dentist_id     Int
+  dental_service Dental_Service @relation(fields: [dental_id], references: [id])
+  dental_id      Int
+  date           String
+  time           String
+  notes          String
+  status         Boolean
+  Invoice        Invoice[]
+}
+
+model Invoice {
+  id               Int            @id @default(autoincrement())
+  dental_service   Dental_Service @relation(fields: [dentalService_id], references: [id])
+  dentalService_id Int
+  appointment      Appointment    @relation(fields: [appointment_id], references: [id])
+  appointment_id   Int
+  date             String
+  amount           Int
+  payment_status   Boolean
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
